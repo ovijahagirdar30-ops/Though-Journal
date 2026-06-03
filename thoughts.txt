@@ -1,19 +1,9 @@
-hello
-hey again
-becoming is my favourite word
-2026-06-02 14:08:15
-im confused
-2026-06-02 14:10:54
-i feel good that i solved the problem in the code
-
-2026-06-02 14:12:34
-im happy with my progress
-
-========================================
-2026-06-02 14:13:31
-i think i like nutella
 
 ----------------------------------------
-2026-06-02 15:19:46
-im glad this choice worked and i found the error and learnt that the code inside that block should be indented
+2026-06-03 00:12:26
+hi
+
+----------------------------------------
+2026-06-03 00:12:31
+im confused
 
