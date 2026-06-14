@@ -17,26 +17,51 @@ def save_thoughts(thoughts):
     with open(FILE_NAME, "w", encoding="utf-8") as file:
         json.dump(thoughts, file, indent=2, ensure_ascii=False)
 
+def show_list(thoughts):
+    """Helper function to show numbered list"""
+    if not thoughts:
+        print("No thoughts yet.")
+        return False
+    for i, entry in enumerate(thoughts):
+        print(f"{i+1}. [{entry['timestamp'][:10]}] {entry['thought'][:60]}...")
+    return True
+
 def main():
-    print("\n=== Personal Thought Journal (JSON Version) ===\n")
-    thoughts = load_thoughts()
+    print("\n=== Personal Thought Journal ===\n")
+    
+    while True:                          # ← New: Persistent loop
+        thoughts = load_thoughts()
+        
+        print("\nWhat would you like to do?")
+        print("1. Save new thought")
+        print("2. View all thoughts")
+        print("3. Search thoughts")
+        print("4. View statistics")
+        print("5. Edit entry")
+        print("6. Delete entry")
+        print("7. Quit")
+        
+        choice = input("\nChoose (1-7): ").strip()
 
-    choice = input("1. Save new thought\n2. View all thoughts\n3. Search thoughts\n4. View statistics\n5. Edit entry\n6. Delete entry\nChoose (1-6): ").strip()
+        if choice == "1":
+            save_new_thought(thoughts)
+        elif choice == "2":
+            view_thoughts(thoughts)
+        elif choice == "3":
+            search_thoughts(thoughts)
+        elif choice == "4":
+            show_statistics(thoughts)
+        elif choice == "5":
+            edit_thought(thoughts)
+        elif choice == "6":
+            delete_thought(thoughts)
+        elif choice in ["7", "q", "quit"]:
+            print("👋 Goodbye! Your thoughts have been saved.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
-    if choice == "1":
-        save_new_thought(thoughts)
-    elif choice == "2":
-        view_thoughts(thoughts)
-    elif choice == "3":
-        search_thoughts(thoughts)
-    elif choice == "4":
-        show_statistics(thoughts)
-    elif choice == "5":
-        edit_thought(thoughts)
-    elif choice == "6":
-        delete_thought(thoughts)
-    else:
-        print("Invalid choice.")
+# ==================== Rest of the functions (same as before) ====================
 
 def save_new_thought(thoughts):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -67,17 +92,6 @@ def save_new_thought(thoughts):
     save_thoughts(thoughts)
     print(f"✅ Thought saved successfully!")
 
-# ---------- New Functions Below ----------
-
-def show_list(thoughts):
-    """Helper function to show numbered list"""
-    if not thoughts:
-        print("No thoughts yet.")
-        return False
-    for i, entry in enumerate(thoughts):
-        print(f"{i+1}. [{entry['timestamp'][:10]}] {entry['thought'][:60]}...")
-    return True
-
 def edit_thought(thoughts):
     if not show_list(thoughts):
         return
@@ -92,9 +106,12 @@ def edit_thought(thoughts):
             
             new_mood = input(f"Mood (1-10) [{entry['mood']}]: ").strip()
             if new_mood:
-                entry['mood'] = int(new_mood)
+                try:
+                    entry['mood'] = int(new_mood)
+                except:
+                    print("Invalid mood, keeping old value.")
             
-            tags = input(f"Tags [{', '.join(entry['tags'])}]: ").strip()
+            tags = input(f"Tags [{', '.join(entry.get('tags', []))}]: ").strip()
             if tags:
                 entry['tags'] = [t.strip() for t in tags.split(",")]
             
@@ -115,7 +132,7 @@ def delete_thought(thoughts):
             if confirm == 'y':
                 deleted = thoughts.pop(index)
                 save_thoughts(thoughts)
-                print(f"✅ Entry deleted: {deleted['thought'][:50]}...")
+                print(f"✅ Entry deleted!")
             else:
                 print("Delete cancelled.")
         else:
@@ -133,7 +150,7 @@ def view_thoughts(thoughts):
         print(f"Thought: {entry['thought']}")
         print(f"Mood: {entry['mood']}/10")
         print(f"Feeling: {entry['feeling']}")
-        if entry['tags']:
+        if entry.get('tags'):
             print(f"Tags: {', '.join(entry['tags'])}")
 
 def search_thoughts(thoughts):
@@ -142,7 +159,7 @@ def search_thoughts(thoughts):
     for entry in thoughts:
         if (term in entry['thought'].lower() or 
             term in entry['feeling'].lower() or
-            any(term in tag.lower() for tag in entry['tags'])):
+            any(term in tag.lower() for tag in entry.get('tags', []))):
             print("\n" + "="*60)
             print(f"[{entry['timestamp']}]")
             print(f"Thought: {entry['thought']}")
