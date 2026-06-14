@@ -1,6 +1,6 @@
-from datetime import datetime
 import json
 import os
+from datetime import datetime
 
 FILE_NAME = "thoughts.json"
 
@@ -21,7 +21,7 @@ def main():
     print("\n=== Personal Thought Journal (JSON Version) ===\n")
     thoughts = load_thoughts()
 
-    choice = input("1. Save thought\n2. View all thoughts\n3. Search thoughts\n4. View statistics\nChoose (1-4): ").strip()
+    choice = input("1. Save new thought\n2. View all thoughts\n3. Search thoughts\n4. View statistics\n5. Edit entry\n6. Delete entry\nChoose (1-6): ").strip()
 
     if choice == "1":
         save_new_thought(thoughts)
@@ -31,6 +31,10 @@ def main():
         search_thoughts(thoughts)
     elif choice == "4":
         show_statistics(thoughts)
+    elif choice == "5":
+        edit_thought(thoughts)
+    elif choice == "6":
+        delete_thought(thoughts)
     else:
         print("Invalid choice.")
 
@@ -61,7 +65,63 @@ def save_new_thought(thoughts):
 
     thoughts.append(new_entry)
     save_thoughts(thoughts)
-    print(f"✅ Thought saved successfully! Mood: {mood_score}/10")
+    print(f"✅ Thought saved successfully!")
+
+# ---------- New Functions Below ----------
+
+def show_list(thoughts):
+    """Helper function to show numbered list"""
+    if not thoughts:
+        print("No thoughts yet.")
+        return False
+    for i, entry in enumerate(thoughts):
+        print(f"{i+1}. [{entry['timestamp'][:10]}] {entry['thought'][:60]}...")
+    return True
+
+def edit_thought(thoughts):
+    if not show_list(thoughts):
+        return
+    try:
+        index = int(input("\nEnter number of entry to edit: ")) - 1
+        if 0 <= index < len(thoughts):
+            entry = thoughts[index]
+            print("\nEditing entry...")
+            
+            entry['thought'] = input(f"Thought [{entry['thought']}]: ").strip() or entry['thought']
+            entry['feeling'] = input(f"Feeling [{entry['feeling']}]: ").strip() or entry['feeling']
+            
+            new_mood = input(f"Mood (1-10) [{entry['mood']}]: ").strip()
+            if new_mood:
+                entry['mood'] = int(new_mood)
+            
+            tags = input(f"Tags [{', '.join(entry['tags'])}]: ").strip()
+            if tags:
+                entry['tags'] = [t.strip() for t in tags.split(",")]
+            
+            save_thoughts(thoughts)
+            print("✅ Entry updated successfully!")
+        else:
+            print("Invalid number.")
+    except:
+        print("Invalid input.")
+
+def delete_thought(thoughts):
+    if not show_list(thoughts):
+        return
+    try:
+        index = int(input("\nEnter number of entry to delete: ")) - 1
+        if 0 <= index < len(thoughts):
+            confirm = input(f"Delete this entry? (y/n): ").lower()
+            if confirm == 'y':
+                deleted = thoughts.pop(index)
+                save_thoughts(thoughts)
+                print(f"✅ Entry deleted: {deleted['thought'][:50]}...")
+            else:
+                print("Delete cancelled.")
+        else:
+            print("Invalid number.")
+    except:
+        print("Invalid input.")
 
 def view_thoughts(thoughts):
     if not thoughts:
