@@ -10,12 +10,14 @@ A command-line personal journaling application built in Python.
 - Edit and delete entries
 - Weekly summaries
 - Basic statistics
+- Notion syncing
 
 Technologies:
 - Python
 - JSON
 - Datetime
 - Collections
+- API Integration
 
 Future Improvements:
 - SQLite database
